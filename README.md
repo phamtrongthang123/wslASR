@@ -21,10 +21,10 @@ Local-first browser UI + Python backend for on-device speech-to-text using NVIDI
 
 ### 1) Create a uv env
 
-NeMo/PyTorch often lag behind the newest Python release. If you hit install errors, use Python `3.10` or `3.11`.
+NeMo/PyTorch often lag behind the newest Python release. Use Python `3.10`–`3.12` (3.12 recommended). Python 3.13 is not supported yet.
 
 ```bash
-uv venv
+uv venv --python 3.12
 source .venv/bin/activate
 ```
 
@@ -41,6 +41,14 @@ Install PyTorch first (choose CPU vs CUDA build):
 uv sync --extra asr
 ```
 
+If the build fails for `texterrors` with an unsupported compiler flag (e.g. `-fdebug-default-version=4`), rerun with explicit CFLAGS:
+
+```bash
+CFLAGS="-fno-strict-overflow -Wsign-compare -Wunreachable-code -DNDEBUG -g -O3 -Wall -fPIC -I/tools/deps/include -I/tools/deps/include/ncursesw -I/tools/deps/libedit/include" \
+CXXFLAGS="-fno-strict-overflow -Wsign-compare -Wunreachable-code -DNDEBUG -g -O3 -Wall -fPIC -I/tools/deps/include -I/tools/deps/include/ncursesw -I/tools/deps/libedit/include" \
+uv sync --extra asr
+```
+
 Optional dev/test deps:
 
 ```bash
@@ -51,6 +59,8 @@ Dependencies are managed via `pyproject.toml` and `uv.lock` (no `requirements*.t
 
 Optional (for `.mp3`, `.m4a`, etc uploads): install `ffmpeg` and ensure it’s on your `PATH`.
 
+Note: NumPy is pinned to `<2.0` for NeMo compatibility; upgrading to NumPy 2.x will break runtime.
+
 ## Run
 
 ```bash
@@ -58,6 +68,45 @@ uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 3002
 ```
 
 Open `http://0.0.0.0:3002`.
+
+## Systemd (user service)
+
+Create a user service so the app starts on login:
+
+```bash
+mkdir -p ~/.config/systemd/user
+cat > ~/.config/systemd/user/parakeet-local-transcribe.service <<'EOF'
+[Unit]
+Description=Parakeet Local Transcribe
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/ptthang/wslASR
+Environment=PYTHONUNBUFFERED=1
+Environment=ASR_DATA_DIR=/home/ptthang/wslASR/data
+Environment=PATH=/home/ptthang/wslASR/.venv/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/home/ptthang/wslASR/.venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 3002
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
+EOF
+```
+
+Enable and start it:
+
+```bash
+systemctl --user daemon-reload
+systemctl --user enable --now parakeet-local-transcribe.service
+```
+
+Check logs:
+
+```bash
+journalctl --user -u parakeet-local-transcribe.service -f
+```
 
 ## Long audio + diarization
 
