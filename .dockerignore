@@ -1,0 +1,16 @@
+.venv
+.cache
+.pytest_cache
+.mypy_cache
+.ruff_cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.egg-info
+data
+.git
+.gitignore
+.idea
+.vscode
+*.whisper

@@ -69,6 +69,50 @@ uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 3002
 
 Open `http://0.0.0.0:3002`.
 
+## Docker
+
+Build the image (downloads large ML deps):
+
+```bash
+docker build -t parakeet-local-transcribe:latest .
+```
+
+Run it:
+
+```bash
+docker run --rm -p 3002:3002 \
+  -v "$(pwd)/data:/app/data" \
+  -e ASR_DATA_DIR=/app/data \
+  parakeet-local-transcribe:latest
+```
+
+Optional: persist the model cache to avoid re-downloading:
+
+```bash
+docker run --rm -p 3002:3002 \
+  -v "$(pwd)/data:/app/data" \
+  -v "$HOME/.cache/huggingface:/root/.cache/huggingface" \
+  -e ASR_DATA_DIR=/app/data \
+  parakeet-local-transcribe:latest
+```
+
+Optional GPU (requires NVIDIA Container Toolkit):
+
+```bash
+docker run --rm --gpus all -p 3002:3002 \
+  -v "$(pwd)/data:/app/data" \
+  -e ASR_DATA_DIR=/app/data \
+  parakeet-local-transcribe:latest
+```
+
+Publish to a registry:
+
+```bash
+docker login
+docker tag parakeet-local-transcribe:latest <registry>/<user>/parakeet-local-transcribe:latest
+docker push <registry>/<user>/parakeet-local-transcribe:latest
+```
+
 ## Systemd (user service)
 
 Create a user service so the app starts on login:
