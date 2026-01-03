@@ -1,0 +1,23 @@
+[project]
+name = "parakeet-local-transcribe"
+version = "0.1.0"
+description = "Local-first browser UI + Python backend for on-device speech-to-text using NVIDIA Parakeet."
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.30",
+  "python-multipart>=0.0.9",
+  "soundfile>=0.12.1",
+  "numpy>=1.26,<2.0",
+  "python-docx>=1.1.2",
+  "reportlab>=4.2.2",
+  "cuda-python>=12.3",
+]
+
+[project.optional-dependencies]
+asr = ["nemo_toolkit[asr]>=2.2"]
+dev = ["pytest>=8.0.0"]
+
+[tool.uv]
+package = false

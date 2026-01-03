@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Parakeet Local Transcribe</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <h1>Parakeet Local Transcribe</h1>
+      <p class="subtle">On-device transcription via a local Python backend (no uploads to the cloud).</p>
+    </header>
+
+    <main class="container">
+      <section class="card">
+        <h2>Upload</h2>
+        <div id="dropzone" class="dropzone" tabindex="0">
+          <div class="dropzone-title">Drag & drop an audio file here</div>
+          <div class="dropzone-subtitle">or</div>
+          <label class="button">
+            Choose file
+            <input id="fileInput" type="file" accept="audio/*" hidden />
+          </label>
+        </div>
+        <div class="row">
+          <label class="field">
+            <span>Device</span>
+            <select id="deviceSelect">
+              <option value="auto" selected>Auto</option>
+              <option value="cpu">CPU</option>
+              <option value="cuda">GPU (CUDA)</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Include timestamps</span>
+            <input id="timestampsToggle" type="checkbox" checked />
+          </label>
+          <label class="field">
+            <span>Speaker diarization</span>
+            <input id="diarizeToggle" type="checkbox" />
+          </label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Record</h2>
+        <div class="row">
+          <label class="field grow">
+            <span>Input device</span>
+            <select id="inputDevice"></select>
+          </label>
+          <button id="refreshDevices" class="button secondary" type="button">Refresh</button>
+        </div>
+        <div class="row">
+          <button id="startBtn" class="button" type="button">Start recording</button>
+          <button id="stopBtn" class="button danger" type="button" disabled>Stop</button>
+          <div id="recordStatus" class="subtle"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Transcript</h2>
+        <div id="status" class="status subtle">Idle</div>
+        <textarea id="fullText" class="textarea" placeholder="Transcript will appear here..." spellcheck="false"></textarea>
+        <details>
+          <summary>Segments (timestamps)</summary>
+          <div id="segments"></div>
+        </details>
+      </section>
+
+      <section class="card">
+        <h2>Export</h2>
+        <div class="row">
+          <label class="field grow">
+            <span>Format</span>
+            <select id="exportFormat">
+              <option value="whisper">.whisper (bundle)</option>
+              <option value="srt">.srt</option>
+              <option value="vtt">.vtt</option>
+              <option value="csv">.csv</option>
+              <option value="dote">.dote</option>
+              <option value="docx">.docx</option>
+              <option value="pdf">.pdf</option>
+              <option value="md">.md</option>
+              <option value="html">.html</option>
+            </select>
+          </label>
+          <button id="exportBtn" class="button secondary" type="button" disabled>Download</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer subtle">
+      Runs locally on your machine. Keep the server bound to 127.0.0.1 for privacy.
+    </footer>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
